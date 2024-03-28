@@ -207,16 +207,21 @@ class Evolution:
                 root_node=current_nodes.root_node, nodes=current_nodes.nodes
             )
         else:
-            selected_nodes = [
-                current_nodes.nodes[i - 1]
-                for i in relevant_context_indices
-                if i - 1 < len(current_nodes.nodes)
-            ]
-            relevant_context = (
-                CurrentNodes(root_node=selected_nodes[0], nodes=selected_nodes)
-                if selected_nodes
-                else current_nodes
-            )
+            try:
+                selected_nodes = [
+                    current_nodes.nodes[int(i) - 1]
+                    for i in relevant_context_indices
+                    if int(i) - 1 < len(current_nodes.nodes)
+                ]
+                relevant_context = (
+                    CurrentNodes(root_node=selected_nodes[0], nodes=selected_nodes)
+                    if selected_nodes
+                    else current_nodes
+                )
+            except  ValueError:
+                relevant_context = CurrentNodes(
+                    root_node=current_nodes.root_node, nodes=current_nodes.nodes
+                )
 
         merged_nodes = self.merge_nodes(relevant_context)
         results = await self.generator_llm.generate(

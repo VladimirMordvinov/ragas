@@ -102,17 +102,28 @@ class ContextRecall(MetricWithLLM):
         return self.context_recall_prompt.format(question=qstn, context=ctx, answer=gt)
 
     def _compute_score(self, response: t.Any) -> float:
-        response = response if isinstance(response, list) else [response]
-        response = [item if isinstance(item, dict) else {} for item in response]
-        response = [
-            int(item.get("Attributed").strip() == "1")
-            if item.get("Attributed")
-            else np.nan
-            for item in response
-        ]
-        denom = len(response)
-        numerator = sum(response)
-        score = numerator / denom if denom > 0 else np.nan
+        score = np.nan
+        try:
+            response = [response] if ("Attributed" in response or "attributed" in response) else response
+            if isinstance(response, dict):
+                response = [v for _,v in response.items()]
+            if isinstance(response, list) and len(response) == 1 and isinstance(response[0], list):
+                response = response[0]
+            attributed = [
+                int(str(item.get("Attributed")).strip() == "1")
+                if "Attributed" in item
+                else
+                int(str(item.get("attributed")).strip() == "1")
+                if "attributed" in item
+                else 
+                    np.nan
+                for item in response
+            ]
+            denom = len(response)
+            numerator = sum(attributed)
+            score = numerator / denom
+        except Exception:
+            pass        
 
         if np.isnan(score):
             logger.warning(

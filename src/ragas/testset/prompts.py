@@ -1,4 +1,13 @@
+import os
 from ragas.llms.prompt import Prompt
+
+question_output_key = None
+answer_output_key = None
+
+if os.getvar("RAGAS_LLM","") == "claude":
+    question_output_key = """Do not refer to the context directly. Do not mention the question is based to coxtext, do not refer to context.
+Wrap the question into <question></question> tags"""
+    answer_output_key =  """ Do not refer to the context directly. Do not mention the answer is based to coxtext, do not refer to context."""
 
 reasoning_question_prompt = Prompt(
     name="reasoning_question",
@@ -22,7 +31,7 @@ reasoning_question_prompt = Prompt(
         },
     ],
     input_keys=["question", "context"],
-    output_key="output",
+    output_key=question_output_key or "output",
     output_type="string",
     language="english",
 )
@@ -53,7 +62,7 @@ multi_context_question_prompt = Prompt(
         },
     ],
     input_keys=["question", "context1", "context2"],
-    output_key="output",
+    output_key=question_output_key or  "output",
     output_type="string",
     language="english",
 )
@@ -80,7 +89,7 @@ conditional_question_prompt = Prompt(
         },
     ],
     input_keys=["question", "context"],
-    output_key="output",
+    output_key=question_output_key or "output",
     output_type="string",
     language="english",
 )
@@ -101,7 +110,7 @@ compress_question_prompt = Prompt(
         },
     ],
     input_keys=["question"],
-    output_key="output",
+    output_key=question_output_key or "output",
     output_type="string",
     language="english",
 )
@@ -125,7 +134,7 @@ conversational_question_prompt = Prompt(
         }
     ],
     input_keys=["question"],
-    output_key="output",
+    output_key=question_output_key or "output",
     output_type="json",
     language="english",
 )
@@ -303,7 +312,7 @@ question_answer_prompt = Prompt(
         },
     ],
     input_keys=["context", "question"],
-    output_key="answer",
+    output_key=answer_output_key or "answer",
     output_type="json",
     language="english",
 )
@@ -362,7 +371,7 @@ seed_question_prompt = Prompt(
         },
     ],
     input_keys=["context", "keyphrase"],
-    output_key="question",
+    output_key=question_output_key or "question",
     output_type="string",
 )
 
